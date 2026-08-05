@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Model weights are not tracked — see estimation/model/README.md
+estimation/model/*
+!estimation/model/README.md
+
+# Synchronisation cache. Keyed on file size + mtime so it self-invalidates;
+# the old joblib cache was keyed on task/trial number alone, which silently
+# reused a previous recording's flash timings.
+synchronize/cache/
+
+# Experiment data & generated outputs (large)
+*.mp4
+project/**/2D/
+project/**/3D/
+project/**/Estimation/
+project/**/synchronized/
+project/**/samples/
+
+# Generated reports and figures
+*.png
+!synchronize/example_result/*.png
+validation/*.json
+!validation/benchmark_results.json

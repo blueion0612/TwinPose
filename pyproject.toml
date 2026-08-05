@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pose3d"
+version = "2.0.0"
+description = "Markerless 3D human pose estimation from two unsynchronised smartphones"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Yuhyeon Lee" }]
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.9",
+    "opencv-contrib-python>=4.6",
+    "pandas>=1.5",
+    "matplotlib>=3.6",
+    "tqdm>=4.64",
+    "PyYAML>=6.0",
+    "joblib>=1.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "seaborn>=0.12"]
+
+[tool.setuptools]
+packages = ["pose3d"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "error::RuntimeWarning:pose3d.*",
+]

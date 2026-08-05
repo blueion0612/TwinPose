@@ -1,0 +1,8 @@
+{
+    "trial1": {
+        "ReprojectionError_px": 3.134304555407155,
+        "BoneLengthCV_percent": 64.92057322011622,
+        "JerkRMS": 52.17908095124773,
+        "HipZVariance": 0.3792937994625017
+    }
+}

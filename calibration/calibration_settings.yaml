@@ -1,0 +1,43 @@
+# =========================================================
+# Calibration settings
+# NOTE: checkerboard_box_size_scale is in centimeters (cm).
+#       All calibration distances/translations are therefore in cm,
+#       and the 3D pipeline converts them to meters (cm / 100).
+# =========================================================
+
+# Camera device indices
+camera0: 0
+camera1: 1
+
+# Video frame size (portrait smartphone video)
+frame_width: 1080
+frame_height: 1920
+
+# Frame counts used during calibration
+mono_calibration_frames: 10
+stereo_calibration_frames: 20
+view_resize: 1
+cooldown: 100
+
+# Checkerboard geometry (inner corners)
+checkerboard_rows: 5
+checkerboard_columns: 8
+checkerboard_box_size_scale: 2.7   # square size in cm (A4-printed board)
+
+# Frame quality filters
+sharpness_threshold: 45            # Laplacian variance threshold
+checkerboard_sharpness_threshold: 30
+max_line_deviation_px: 2.5         # max corner deviation from fitted grid lines
+min_orientation_angle: 4           # deg
+min_dist_mm: 15
+target_frame_count: 60
+
+# Stereo refinement loop
+max_drop_ratio: 0.08
+min_kept_pairs_in_loop: 10
+loops: 25
+early_stop_rms_delta: 0.005
+
+# Frame diversity selection
+diversity_threshold_factor: 0.1
+time_threshold: 1.0                # seconds between selected frames

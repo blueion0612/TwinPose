@@ -1,0 +1,22 @@
+name: pose3d
+channels:
+  - conda-forge
+dependencies:
+  # 3.10 is the floor the code is tested against; 3.11 / 3.12 / 3.13 also work.
+  - python=3.10
+  - ffmpeg            # required for saving matplotlib animations (plot / plot_mmpose)
+  - pip
+  - pip:
+      - numpy
+      - opencv-contrib-python   # cv2 + aruco (Charuco fallback in calibration)
+      - scipy
+      - pandas
+      - matplotlib
+      - seaborn
+      - tqdm
+      - joblib
+      - PyYAML
+      - pytest                  # test suite under tests/
+      # NOTE: fastdtw used to be required for the inter-trial DTW metric. Its last
+      # release is from 2018 and it no longer installs cleanly on modern Python,
+      # so a small radius-limited DTW now lives in pose3d/metrics.py instead.
