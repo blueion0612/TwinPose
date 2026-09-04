@@ -20,9 +20,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-      - name: Install (headless OpenCV, no display on a runner)
+      - name: Install the package itself, so the tests can import pose3d
         run: |
-          pip install numpy scipy opencv-python-headless matplotlib pytest
+          pip install -e ".[dev]"
+          pip install --force-reinstall opencv-python-headless    # no display on a runner
       - run: pytest -q
       - name: The committed benchmark is readable and complete
         run: |

@@ -392,10 +392,15 @@ main.py                                         sequences the stages
 ## Tests
 
 ```bash
-pytest                                        # 101 tests, ~100 s
+pip install -e ".[dev]"                       # so the tests can import pose3d
+pytest                                        # 101 tests, about 8 minutes
 python main.py benchmark                      # accuracy against known truth
 python main.py calib-check                    # calibration against known cameras
 ```
+
+Without the editable install, a bare `pytest` cannot import `pose3d`; running
+`python -m pytest` from the repository root works instead, because that puts the
+root on the import path.
 
 Tested on Python 3.10 (the pinned version) and 3.12.
 
