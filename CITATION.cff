@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+type: software
+title: Markerless 3D Human Pose from Two Unsynchronised Smartphones
+abstract: >-
+  Reconstruction of 3D human motion from two ordinary phone cameras, using a
+  flash for temporal alignment and a printed checkerboard for geometry, with a
+  windowed spatio-temporal bundle adjustment and a synthetic validation
+  framework that measures accuracy without recorded footage.
+authors:
+  - family-names: Lee
+    given-names: Yuhyeon
+    orcid: https://orcid.org/0009-0001-9354-6445
+repository-code: https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones
+license: MIT
+keywords:
+  - human pose estimation
+  - markerless motion capture
+  - multi-view geometry
+  - bundle adjustment
+  - camera calibration

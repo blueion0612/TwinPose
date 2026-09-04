@@ -1,228 +1,42 @@
-# Markerless 3D Human Pose Estimation from Two Unsynchronised Smartphones
+# Markerless 3D Human Pose from Two Smartphones
 
-### A spatio-temporally regularised reconstruction pipeline, validated against synthetic ground truth
+Yuhyeon Lee · 2025-2026
 
-**Yuhyeon Lee** · v2.0 · August 2026
+[![tests](https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones/actions/workflows/tests.yml/badge.svg)](https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones/actions/workflows/tests.yml)
+[![License](https://img.shields.io/github/license/blueion0612/Markerless_3D_Pose_TwoSmartphones)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.12-blue)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/status-research%20code-orange)](#limitations)
 
-Reconstruct 3D human motion from two ordinary phone cameras. No synchronisation
-hardware, no motion-capture suit: a green flashlight provides the timing signal
-and a printed checkerboard provides the geometry.
+[**Results**](#results) · [**Method**](#method) · [**Recording guide**](docs/recording.md) · [**Change history**](docs/history.md)
 
-> **Summary of contributions.** A two-view reconstruction that replaces six
-> sequential heuristic correction passes with a single windowed spatio-temporal
-> bundle adjustment (23.1 mm MPJPE, 19.7 mm PA-MPJPE against known ground truth);
-> a synthetic validation framework that makes accuracy measurable without
-> recorded footage; a calibration path corrected for an OpenCV 5.x behaviour that
-> silently discards distortion coefficients (baseline error 12.1% → 0.14%); and a
-> measured error budget showing that calibration scale, not reconstruction,
-> dominates absolute accuracy.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/hero_stages-dark.png">
+  <img alt="Three bar charts: reconstruction error, coverage and bone length spread across the triangulation, bootstrap and refinement stages" src="docs/figures/hero_stages.png">
+</picture>
 
-- **Two phones, a green torch, a printed checkerboard.** Nothing else.
-- **One person can record it alone.** Hold the board yourself; the pipeline picks
-  the usable frames.
-- **End to end.** Synchronisation, calibration, 2D detection, 3D reconstruction,
-  wrist kinematics, evaluation.
-- **Personalised skeleton.** Bone lengths are measured from your own T-pose.
-- **Measured, not asserted.** Accuracy is reported against synthetic ground truth
-  that anyone can regenerate — see [Evaluation](#evaluation).
+*Read straight from `validation/benchmark_results.json`, so the figure cannot drift
+from the reported numbers. Regenerate with `python docs/figures/make_hero.py`.*
 
----
+**Markerless 3D Pose** reconstructs 3D human motion from two ordinary phone cameras.
+No synchronisation hardware and no motion-capture suit: a green flashlight provides
+the timing signal, a printed checkerboard provides the geometry, and one person can
+record it alone.
 
-## Contents
+Four things came out of the v2.0 rebuild. Six sequential heuristic correction passes
+were replaced by a single windowed spatio-temporal bundle adjustment, reaching
+23.1 mm MPJPE and 19.7 mm PA-MPJPE against known ground truth. A synthetic
+validation framework makes accuracy measurable with no footage at all. A calibration
+path was corrected for an OpenCV 5.x behaviour that silently discards distortion
+coefficients, taking baseline error from 12.1% to 0.14%. And a measured error budget
+shows that calibration scale, not reconstruction, dominates absolute accuracy.
 
-- [Quick start](#quick-start) · [Install](#install) · [Recording](#recording)
-- [Pipeline](#pipeline) · [Method](#method)
-- [Evaluation](#evaluation) · [Performance](#performance)
-- [Layout](#repository-layout) · [Testing](#testing)
-- [Known limits](#known-limits) · [History](#history) · [License](#license)
-
----
-
-## Quick start
-
-```bash
-conda env create -f environment.yml
-conda activate pose3d
-
-# What will 2D inference actually run on? (see the GPU note below)
-python main.py check
-
-# Reproduce the accuracy figures without any footage at all
-python main.py benchmark
-
-# With your own recordings:
-python main.py preview --task 30 --trial 1              # watch, pick --skip_start
-python main.py run --task 30 --trial 1 --skip_start 30 --subject_height 1.72
-python main.py plot --task 30 --trial 1
-```
-
-## Install
-
-```bash
-conda env create -f environment.yml
-conda activate pose3d
-pip install -e .          # optional: puts `pose3d` on the path for your own code
-```
-
-2D detection needs the OpenPose BODY_25B and hand models, which are not in this
-repository for size and licence reasons. See
-[`estimation/model/README.md`](estimation/model/README.md) for download links and
-where to put them. Everything except the 2D stage — including the full accuracy
-benchmark — runs without them.
-
-### A word about the GPU
-
-`python main.py check` prints what inference will really use. On most installs
-the answer is the CPU, even with a fast NVIDIA card present, because the
-`opencv-contrib-python` wheel on PyPI **is built without CUDA**. Setting
-`DNN_BACKEND_CUDA` on such a build does not fail — OpenCV falls back to the CPU
-silently, and the only symptom is that the run takes an hour. Getting the GPU
-involved requires building OpenCV from source with CUDA enabled.
-
-## Recording
-
-Per **task** (one camera placement), once:
-
-| Clip | Length | What to do |
-| --- | --- | --- |
-| `mono0.mp4`, `mono1.mp4` | ~1 min each | Move the checkerboard slowly through the **whole frame, corners included**, at a range of distances and tilts |
-
-Per **trial**:
-
-| Clip | What to do |
-| --- | --- |
-| `stereo0.mp4`, `stereo1.mp4` | Start both phones, flash the green torch 3–4 times in view of both, present the board to **both** cameras, then step back and move |
-
-Open the motion with a 5-second T-pose — that is what the bone measurement uses.
-Keep the subject between 1.5 m and 3.5 m. Put the files where
-[`project/README.md`](project/README.md) says.
-
-Before calibrating, check the footage is usable:
-
-```bash
-python tools/inspect_footage.py --video project/task30/mono0.mp4 --compare project/task30/mono1.mp4
-```
-
-It reports how often the board is actually detectable and how the sharpness
-threshold would filter the clip — much cheaper than finding out after a full
-calibration run.
-
-## Pipeline
-
-```
-stereo0/1.mp4  ─┬─► [1] synchronise ─► synchronized/*.mp4 ─► [2] calibrate ─► camera_parameters/
-                └────────────────────► Estimation/cam*.mp4 ─► [3] 2D ─► 2D/*.json ─┐
-mono0/1.mp4 ────────────────────────────────────────────────────────────────────────┤
-                                                                                    ▼
-                                                              [4] 3D ─► 3D/*.json + metrics
-```
-
-| # | Stage | Command |
-| --- | --- | --- |
-| 1 | Synchronise and split | `synchronize/synchronizevideo.py --stage 1\|2` |
-| 2 | Calibrate | `calibration/calibration.py` |
-| 3 | 2D detection | `estimation/Openpose.py` |
-| 4 | 3D reconstruction | `estimation/3D_estimation.py` |
-| — | Visualise | `estimation/plot.py` |
-| — | Compare placements | `estimation/compare.py` |
-
-`main.py` sequences them; each is also a standalone script.
-
-Using MMPose instead of OpenPose for step 3? Point
-`estimation/3D_estimation_mmpose.py` at `2D/results_cam{0,1}.json` in MMPose
-prediction format. It is a thin adapter over the same pipeline, not a second
-copy of it.
-
-## Method
-
-### 1. Synchronisation
-
-Green-pixel count per frame, at 1/8 resolution (a flash covers thousands of
-pixels and survives the downscale). Onsets are sharp positive jumps, thresholded
-robustly with median/MAD rather than mean/σ — the flashes are themselves the
-largest outliers, so a σ-based threshold hides the weaker ones.
-
-Alignment is a vote over every pairing of one flash from each clip: the shift
-that the most flashes agree on wins. A spurious detection therefore costs one
-event instead of truncating the match.
-
-### 2. Calibration
-
-Board detection runs over contiguous frame ranges in parallel worker processes.
-Views are chosen for *diversity* by a farthest-point sweep over apparent size,
-image position, in-plane angle and foreshortening — a hundred near-identical
-frames constrain a lens no better than one. Outlying views are dropped
-iteratively using a median/MAD threshold that adapts to the run.
-
-**Corners are undistorted before stereo calibration.** This is not cosmetic:
-OpenCV 5.0's `stereoCalibrate` ignores the distortion coefficients it is given
-when `CALIB_FIX_INTRINSIC` is set. Verified by passing the same coefficients
-truncated to 5, 8, 12 and 14 entries and getting byte-identical results. With
-distortion left in, the recovered baseline was 12% wrong; undistorting first
-brings it to 0.14%.
-
-### 3. 2D detection
-
-Multi-scale heatmap averaging, batched across frames, with sub-pixel peak
-refinement — a parabola fit to each peak's neighbours. Taking `argmax` alone
-quantises every keypoint to the heatmap grid, which is upsampled from a stride-8
-network and therefore coarse enough to put a floor of several pixels on the 2D
-error. Hand crops are derived from the wrist/elbow/shoulder chain.
-
-### 4. 3D reconstruction
-
-1. **Frame offset.** Coarse whole-frame search, then a guarded sub-frame
-   refinement. Scored on reprojection error restricted to fast-moving joints,
-   because a stationary joint carries no timing information and the protocol
-   opens with a five-second static T-pose. Fractional candidates are debiased for
-   the noise that resampling removes.
-2. **Triangulation.** DLT plus a vectorised Gauss-Newton polish.
-3. **Single-view bootstrapping.** A joint one camera can see lies on a ray; the
-   missing degree of freedom comes from the bone to its parent. Of the two
-   ray-sphere intersections, the one continuing the joint's own trajectory is
-   taken.
-4. **Bone measurement.** T-pose frames are found by scoring vertical alignment
-   against a measured up-axis, then bone lengths are trimmed-mean averaged.
-   Implausible measurements fall back to a height-scaled prior.
-5. **Spatio-temporal bundle adjustment.** One least-squares problem over
-   overlapping temporal windows, with an analytic sparse Jacobian:
-
-   | Residual | Meaning |
-   | --- | --- |
-   | reprojection | the data term, Huber-robust, confidence weighted |
-   | bone length | each bone toward its personalised length |
-   | acceleration | second-difference smoothness prior |
-   | joint limits | one-sided hinge, active only on hyperextension |
-
-   Weights are expressed as uncertainties (`residual / sigma`), so
-   `sigma_bone_m = 0.012` reads as "a one-centimetre bone error costs about as
-   much as a one-sigma reprojection error" and a single Huber `f_scale` is
-   meaningful across every block.
-
-This replaces six sequential heuristic passes — a bundle adjustment whose result
-was discarded, a 20% bone-length lerp, a 10% joint-angle nudge, a 20% torso nudge,
-a second discarded bundle adjustment, and a Savitzky-Golay pass followed by
-subtracting 25% of each point's acceleration. Those were gradient steps on
-objectives that partly disagreed, applied in a fixed order with hand-tuned step
-sizes and no convergence check. See [Evaluation](#evaluation) for what the change
-is worth.
-
-### 5. Wrist kinematics
-
-Forearm frame from elbow→wrist; hand frame from the palm plane, averaged over
-four triangles so one bad MCP joint cannot tip it. Flexion/extension, radial/ulnar
-deviation and pronation/supination are the y-x-z decomposition of the relative
-rotation, sign-mirrored so a positive number means the same anatomical direction
-on both hands. Short gaps are bridged with SLERP; the angle traces are unwrapped
-before smoothing so a trace crossing ±180° is not corrupted.
-
-## Evaluation
+## Results
 
 **No footage ships with this repository.** Videos, model weights and keypoints
 are all excluded by `.gitignore`, so the pipeline cannot be re-run on the original
 recordings and the numbers older versions of this README quoted cannot be
 reproduced. They also disagreed with each other: 9.66 px in one section, 9.19 px
-in another, and 20.35 px in the committed `evaluation_metrics.json` — same task,
+in another, and 20.35 px in the committed `evaluation_metrics.json`, for the same task
 same trial.
 
 The benchmark replaces that with something reproducible. It builds a scripted
@@ -252,7 +66,7 @@ occlusion bursts, 0.4% gross mis-detections.
 | *noise-free upper bound* | *11.92 mm* | *5.50 mm* | *97.2%* | *100%* | *0.51%* | *13* | *100%* |
 
 Ground-truth jerk RMS is 98.8, so the reconstruction is now marginally smoother
-than the motion itself — the right side of the line. Bootstrapping *costs*
+than the motion itself, which is the right side of the line. Bootstrapping *costs*
 accuracy on its own (28.2 → 35.2 mm) while buying 12 points of coverage; the
 refinement then more than repays it. Runtime: 5.2 s for 510 frames.
 
@@ -278,7 +92,7 @@ Whole-frame offset was recovered exactly in all five seeds.
 | bone prior 15% too tall | 26.52 mm | 22.69 mm | 3.49% | 133 |
 
 The smoothness prior does most of the work. The bone prior buys rigidity rather
-than accuracy — which is what it is for. The joint-limit hinge changes nothing on
+than accuracy, which is what it is for. The joint-limit hinge changes nothing on
 valid motion, which is also what it is for: it is insurance against impossible
 poses, and this synthetic motion contains none.
 
@@ -336,7 +150,7 @@ and compare it against the calibrated baseline that
 nothing downstream is trustworthy in absolute terms.
 
 **But scale error leaves pose *shape* intact.** PA-MPJPE aligns each frame
-before measuring, so it is completely blind to baseline error — 5.5 mm whether
+before measuring, so it is completely blind to baseline error: 5.5 mm whether
 the baseline is 0.14% or 5.4% wrong. If the question is joint angles or movement
 patterns rather than absolute distances, a scale error costs nothing. If the
 question is "how far did the hand travel", it costs everything.
@@ -351,7 +165,7 @@ it. The rows show what it would cost if it were 10-30 mm.
 
 ### Calibration accuracy
 
-A reprojection RMS is the residual of the fit that produced the numbers — a
+A reprojection RMS is the residual of the fit that produced the numbers, so a
 calibration with a 10% focal-length error drives it just as low, and every
 downstream distance inherits the error. `validation/validate_calibration_synthetic.py`
 renders a board through a camera whose parameters are known and reports the error
@@ -368,7 +182,7 @@ python main.py calib-check
 | focal length, camera 0 / camera 1 | 0.47% / 0.31% |
 | principal point, camera 0 / camera 1 | 4.4 px / 5.5 px |
 | stereo rotation | **0.13°** |
-| stereo baseline (true 1877 mm) | **2.6 mm — 0.14%** |
+| stereo baseline (true 1877 mm) | **2.6 mm, 0.14%** |
 | stereo RMS | 0.40 px |
 
 The frame offset was chosen unambiguously: RMS 0.40 px at the correct offset
@@ -387,7 +201,7 @@ reprojection RMS:
 Cross-trial validation of a real calibration (an honest consistency check, not an
 absolute one) is `python main.py validate --task 30 --exclude_trial 1`.
 
-## Performance
+### Performance
 
 Measured on a Ryzen 9 5900X (12 cores / 24 threads), RTX 3090 Ti, 32 GB.
 
@@ -395,7 +209,7 @@ Measured on a Ryzen 9 5900X (12 cores / 24 threads), RTX 3090 Ti, 32 GB.
 | --- | --- | --- | --- |
 | Sampled video read, 1080×1920 | 65 fps | 279 fps | **4.3×** |
 | Checkerboard scan (8 procs × 1 cv2 thread) | 5.8 fps | 24.1 fps | **4.2×** |
-| 3D reconstruction, 510 frames | — | 7.3 s | — |
+| 3D reconstruction, 510 frames | not measured | 7.3 s | |
 
 The video figure is the cost of `cap.set(CAP_PROP_POS_FRAMES)` before every read:
 on H.264 with a 2-second GOP that forces a jump back to the keyframe and a
@@ -410,14 +224,147 @@ at 22). `pose3d.video.default_workers()` encodes that.
 
 The 3D stage is no longer worth optimising: the old offset search evaluated 121
 candidates, triangulating every frame for each, and the reconstruction ran one
-`scipy.optimize.least_squares` call *per 3D point* — roughly 50,000 solver
+`scipy.optimize.least_squares` call *per 3D point*, roughly 50,000 solver
 invocations for a 30-second clip. It is now two coarse-to-fine passes and one
 sparse windowed solve.
+
+## Quick start
+
+```bash
+conda env create -f environment.yml
+conda activate pose3d
+
+# What will 2D inference actually run on? (see the GPU note below)
+python main.py check
+
+# Reproduce the accuracy figures without any footage at all
+python main.py benchmark
+
+# With your own recordings:
+python main.py preview --task 30 --trial 1              # watch, pick --skip_start
+python main.py run --task 30 --trial 1 --skip_start 30 --subject_height 1.72
+python main.py plot --task 30 --trial 1
+```
+
+## Method
+
+### Stages
+
+
+```
+stereo0/1.mp4  ─┬─► [1] synchronise ─► synchronized/*.mp4 ─► [2] calibrate ─► camera_parameters/
+                └────────────────────► Estimation/cam*.mp4 ─► [3] 2D ─► 2D/*.json ─┐
+mono0/1.mp4 ────────────────────────────────────────────────────────────────────────┤
+                                                                                    ▼
+                                                              [4] 3D ─► 3D/*.json + metrics
+```
+
+### 1. Synchronisation
+
+Green-pixel count per frame, at 1/8 resolution (a flash covers thousands of
+pixels and survives the downscale). Onsets are sharp positive jumps, thresholded
+robustly with median/MAD rather than mean/σ, because the flashes are themselves the
+largest outliers, so a σ-based threshold hides the weaker ones.
+
+Alignment is a vote over every pairing of one flash from each clip: the shift
+that the most flashes agree on wins. A spurious detection therefore costs one
+event instead of truncating the match.
+
+### 2. Calibration
+
+Board detection runs over contiguous frame ranges in parallel worker processes.
+Views are chosen for *diversity* by a farthest-point sweep over apparent size,
+image position, in-plane angle and foreshortening. A hundred near-identical
+frames constrain a lens no better than one. Outlying views are dropped
+iteratively using a median/MAD threshold that adapts to the run.
+
+**Corners are undistorted before stereo calibration.** This is not cosmetic:
+OpenCV 5.0's `stereoCalibrate` ignores the distortion coefficients it is given
+when `CALIB_FIX_INTRINSIC` is set. Verified by passing the same coefficients
+truncated to 5, 8, 12 and 14 entries and getting byte-identical results. With
+distortion left in, the recovered baseline was 12% wrong; undistorting first
+brings it to 0.14%.
+
+### 3. 2D detection
+
+Multi-scale heatmap averaging, batched across frames, with sub-pixel peak
+refinement, a parabola fit to each peak's neighbours. Taking `argmax` alone
+quantises every keypoint to the heatmap grid, which is upsampled from a stride-8
+network and therefore coarse enough to put a floor of several pixels on the 2D
+error. Hand crops are derived from the wrist/elbow/shoulder chain.
+
+### 4. 3D reconstruction
+
+1. **Frame offset.** Coarse whole-frame search, then a guarded sub-frame
+   refinement. Scored on reprojection error restricted to fast-moving joints,
+   because a stationary joint carries no timing information and the protocol
+   opens with a five-second static T-pose. Fractional candidates are debiased for
+   the noise that resampling removes.
+2. **Triangulation.** DLT plus a vectorised Gauss-Newton polish.
+3. **Single-view bootstrapping.** A joint one camera can see lies on a ray; the
+   missing degree of freedom comes from the bone to its parent. Of the two
+   ray-sphere intersections, the one continuing the joint's own trajectory is
+   taken.
+4. **Bone measurement.** T-pose frames are found by scoring vertical alignment
+   against a measured up-axis, then bone lengths are trimmed-mean averaged.
+   Implausible measurements fall back to a height-scaled prior.
+5. **Spatio-temporal bundle adjustment.** One least-squares problem over
+   overlapping temporal windows, with an analytic sparse Jacobian:
+
+   | Residual | Meaning |
+   | --- | --- |
+   | reprojection | the data term, Huber-robust, confidence weighted |
+   | bone length | each bone toward its personalised length |
+   | acceleration | second-difference smoothness prior |
+   | joint limits | one-sided hinge, active only on hyperextension |
+
+   Weights are expressed as uncertainties (`residual / sigma`), so
+   `sigma_bone_m = 0.012` reads as "a one-centimetre bone error costs about as
+   much as a one-sigma reprojection error" and a single Huber `f_scale` is
+   meaningful across every block.
+
+This replaces six sequential heuristic passes: a bundle adjustment whose result
+was discarded, a 20% bone-length lerp, a 10% joint-angle nudge, a 20% torso nudge,
+a second discarded bundle adjustment, and a Savitzky-Golay pass followed by
+subtracting 25% of each point's acceleration. Those were gradient steps on
+objectives that partly disagreed, applied in a fixed order with hand-tuned step
+sizes and no convergence check. See [Evaluation](#evaluation) for what the change
+is worth.
+
+### 5. Wrist kinematics
+
+Forearm frame from elbow→wrist; hand frame from the palm plane, averaged over
+four triangles so one bad MCP joint cannot tip it. Flexion/extension, radial/ulnar
+deviation and pronation/supination are the y-x-z decomposition of the relative
+rotation, sign-mirrored so a positive number means the same anatomical direction
+on both hands. Short gaps are bridged with SLERP; the angle traces are unwrapped
+before smoothing so a trace crossing ±180° is not corrupted.
+
+## Usage
+
+| # | Stage | Command |
+| --- | --- | --- |
+| 1 | Synchronise and split | `synchronize/synchronizevideo.py --stage 1\|2` |
+| 2 | Calibrate | `calibration/calibration.py` |
+| 3 | 2D detection | `estimation/Openpose.py` |
+| 4 | 3D reconstruction | `estimation/3D_estimation.py` |
+| | Visualise | `estimation/plot.py` |
+| | Compare placements | `estimation/compare.py` |
+
+`main.py` sequences them; each is also a standalone script.
+
+Using MMPose instead of OpenPose for step 3? Point
+`estimation/3D_estimation_mmpose.py` at `2D/results_cam{0,1}.json` in MMPose
+prediction format. It is a thin adapter over the same pipeline, not a second
+copy of it.
+
+Recording the footage in the first place, the flash, the
+board and the T-pose, is covered in [the recording guide](docs/recording.md).
 
 ## Repository layout
 
 ```
-pose3d/                  the library — one implementation of everything
+pose3d/                  the library, one implementation of everything
 ├── skeleton.py          keypoint schema, bone model, index remapping
 ├── camera.py            pinhole model, calibration IO, unit conversion
 ├── geometry.py          triangulation, projection, Procrustes
@@ -442,7 +389,7 @@ project/                                        recordings, calibration, results
 main.py                                         sequences the stages
 ```
 
-## Testing
+## Tests
 
 ```bash
 pytest                                        # 101 tests, ~100 s
@@ -452,13 +399,36 @@ python main.py calib-check                    # calibration against known camera
 
 Tested on Python 3.10 (the pinned version) and 3.12.
 
-## Known limits
+## Requirements
+
+```bash
+conda env create -f environment.yml
+conda activate pose3d
+pip install -e .          # optional: puts `pose3d` on the path for your own code
+```
+
+2D detection needs the OpenPose BODY_25B and hand models, which are not in this
+repository for size and licence reasons. See
+[`estimation/model/README.md`](estimation/model/README.md) for download links and
+where to put them. Everything except the 2D stage runs without them, including the
+full accuracy benchmark.
+
+### A word about the GPU
+
+`python main.py check` prints what inference will really use. On most installs
+the answer is the CPU, even with a fast NVIDIA card present, because the
+`opencv-contrib-python` wheel on PyPI **is built without CUDA**. Setting
+`DNN_BACKEND_CUDA` on such a build does not fail. OpenCV falls back to the CPU
+silently, and the only symptom is that the run takes an hour. Getting the GPU
+involved requires building OpenCV from source with CUDA enabled.
+
+## Limitations
 
 - **A small board limits stereo accuracy, and stereo accuracy dominates absolute
   error.** The baseline is inferred from the board's apparent size; an A4 board at
   2.5 m spans about 8% of the frame. A 1% baseline error costs more MPJPE than
   all the detector noise put together (see the error budget), so a larger printed
-  board is the single cheapest improvement available — and measuring the phone
+  board is the single cheapest improvement available, and measuring the phone
   separation with a tape is a free sanity check on the result.
 - **Absolute distances are only as good as the calibration; joint angles are
   much more forgiving.** Scale error is invisible to PA-MPJPE. Decide which of
@@ -479,44 +449,30 @@ Tested on Python 3.10 (the pinned version) and 3.12.
   observable when something is moving. The search reports a confidence margin;
   a flat margin means the clip could not tell.
 - **Two views leave depth the weakest axis.** Reprojection error is largely blind
-  to it — check `HipZVariance` and the bone-length CV instead.
+  to it, so check `HipZVariance` and the bone-length CV instead.
 - **No CUDA in the OpenCV wheel**, as above.
 - Ground-truth metrics in `compare.py` (MPJPE against real motion capture) need a
   `gt.json` that this project has never had; the code path exists and is tested
   against synthetic ground truth.
 
-## History
+## Citation
 
-This repository was dormant and unmaintained for some time. The reconstruction
-stage had stopped working in ways nothing in its output revealed:
-
-| Defect | Effect |
-| --- | --- |
-| f-string with nested same quotes | `3D_estimation.py` did not parse at all on the pinned Python 3.10 |
-| Bundle adjustment results never written back | Both passes computed, printed an RMS, and were discarded |
-| Hand frame given 5 rows, indexed row 17 | Every call raised `IndexError`; a bare `except` turned it into empty output, so `wrist_kinematics.json` was a list of empty dicts on every run |
-| Reflected basis for the right hand | `Rotation.from_matrix` rejected it; every right-hand angle silently empty |
-| `best_offset` written, `frame_offset` read | The MMPose pipeline always ran unaligned |
-| `midhip_to_?hip` prior of 0.52 m | A torso length used as half a pelvis width; bootstrapped hips landed ~5× too far out |
-| 26-joint index map applied to 18-joint files | `compare.py` read `LWrist` whenever it asked for `LShoulder` |
-| Inter-trial metrics overwritten with NaN | Computed, then discarded two loops later |
-| `pred[:, feet, [0, 2]]` | Broadcasts to `(F, 2)`; the following `norm(axis=2)` raised |
-| Sync scored by a term ~100× the signal | Bone-length CV decided the offset; the search returned essentially arbitrary answers |
-| Joint-limit test with the sign reversed | Penalised straight limbs instead of impossible folds; cost 2.3 mm of MPJPE |
-| `cap.set` before every frame read | Video scanned dozens of times over |
-| `DNN_BACKEND_CUDA` on a CUDA-less build | Silent CPU fallback with no indication |
-| Distortion passed to `stereoCalibrate` | Ignored by OpenCV 5.0; baseline 12% wrong |
-
-The keypoint schema had been re-derived by hand in four files; it now lives in
-one. The MMPose variant was a 1,895-line near-copy of the main pipeline and is
-now a 130-line adapter. Every defect above has a test.
+```bibtex
+@misc{lee2026markerless3d,
+  author = {Yuhyeon Lee},
+  title  = {Markerless 3D Human Pose from Two Unsynchronised Smartphones},
+  year   = {2026},
+  note   = {Unpublished. https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones}
+}
+```
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE). The OpenPose model weights are **not** included
+MIT. See [`LICENSE`](LICENSE). The OpenPose model weights are **not** included
 and carry CMU's own non-commercial research licence; see
 [`estimation/model/README.md`](estimation/model/README.md).
 
 ---
 
 *Yuhyeon Lee*
+
