@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it as below.
 type: software
-title: Markerless 3D Human Pose from Two Unsynchronized Smartphones
+title: "TwinPose: 3D human pose from two unsynchronized smartphones"
 abstract: >-
   Reconstruction of 3D human motion from two ordinary phone cameras, using a
   flash for temporal alignment and a printed checkerboard for geometry, with a
@@ -11,7 +11,7 @@ authors:
   - family-names: Lee
     given-names: Yuhyeon
     orcid: https://orcid.org/0009-0001-9354-6445
-repository-code: https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones
+repository-code: https://github.com/blueion0612/TwinPose
 version: 2.0.0
 date-released: 2026-09-05
 license: MIT

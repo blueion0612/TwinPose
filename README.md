@@ -1,11 +1,11 @@
 <div align="center">
 
-# Markerless 3D Human Pose from Two Smartphones
+# TwinPose: 3D human pose from two unsynchronized phones
 
 Yuhyeon Lee · 2025-2026
 
-[![tests](https://img.shields.io/github/actions/workflow/status/blueion0612/Markerless_3D_Pose_TwoSmartphones/tests.yml?branch=main&label=tests)](https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones/actions/workflows/tests.yml)
-[![License](https://img.shields.io/github/license/blueion0612/Markerless_3D_Pose_TwoSmartphones)](LICENSE)
+[![tests](https://img.shields.io/github/actions/workflow/status/blueion0612/TwinPose/tests.yml?branch=main&label=tests)](https://github.com/blueion0612/TwinPose/actions/workflows/tests.yml)
+[![License](https://img.shields.io/github/license/blueion0612/TwinPose)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-research%20code-orange)](#limitations)
 
@@ -23,7 +23,7 @@ Yuhyeon Lee · 2025-2026
 below, which `tests/test_readme_numbers.py` checks against the same file.
 Regenerate with `python docs/figures/make_hero.py`.*
 
-**Markerless 3D Pose** reconstructs 3D human motion from two ordinary phone cameras.
+**TwinPose** reconstructs 3D human motion from two ordinary phone cameras.
 No synchronization hardware and no motion-capture suit: a green flashlight provides
 the timing signal, a printed checkerboard provides the geometry, and one person can
 record it alone.
@@ -237,8 +237,8 @@ sparse windowed solve.
 ## Quick start
 
 ```bash
-git clone https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones
-cd Markerless_3D_Pose_TwoSmartphones
+git clone https://github.com/blueion0612/TwinPose
+cd TwinPose
 conda env create -f environment.yml
 conda activate pose3d
 pip install -e .
@@ -474,12 +474,12 @@ involved requires building OpenCV from source with CUDA enabled.
 ## Citation
 
 ```bibtex
-@misc{lee2026markerless3d,
+@misc{lee2026twinpose,
   author  = {Yuhyeon Lee},
-  title   = {Markerless 3D Human Pose from Two Unsynchronized Smartphones},
+  title   = {TwinPose: 3D Human Pose from Two Unsynchronized Smartphones},
   year    = {2026},
   version = {2.0.0},
-  url     = {https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones},
+  url     = {https://github.com/blueion0612/TwinPose},
   note    = {Unpublished}
 }
 ```

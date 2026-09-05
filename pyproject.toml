@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones"
+Repository = "https://github.com/blueion0612/TwinPose"
 Portfolio = "https://blueion0612.github.io"
 
 [project.optional-dependencies]
