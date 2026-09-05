@@ -26,5 +26,7 @@ project/**/samples/
 # Generated reports and figures
 *.png
 !synchronize/example_result/*.png
+!docs/figures/*.png
+!docs/social-preview.png
 validation/*.json
 !validation/benchmark_results.json
