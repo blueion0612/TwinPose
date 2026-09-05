@@ -17,7 +17,7 @@ Per **trial**:
 
 Open the motion with a 5-second T-pose, which is what the bone measurement uses.
 Keep the subject between 1.5 m and 3.5 m. Put the files where
-[`project/README.md`](project/README.md) says.
+[`project/README.md`](../project/README.md) says.
 
 Before calibrating, check the footage is usable:
 
