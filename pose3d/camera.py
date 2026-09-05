@@ -5,9 +5,9 @@ Two long-standing problems are fixed here.
 **Unit confusion.**  ``calibration.py`` writes translations in the checkerboard's
 unit, which is centimetres (``checkerboard_box_size_scale: 2.7`` is a cm value).
 ``3D_estimation.py`` consumed them as-is and then invented a ``SCALE`` factor of
-~106 to reconcile the resulting centimetre-ish world with metre-denominated bone
+~106 to reconcile the resulting centimetre-ish world with meter-denominated bone
 lengths, while ``3D_estimation_mmpose.py`` divided by 100 and expected a scale of
-~1.0.  Loading now converts to metres exactly once, here, so downstream code has
+~1.0.  Loading now converts to meters exactly once, here, so downstream code has
 a single unambiguous unit.
 
 **Offset key mismatch.**  ``calibration.py`` stores the chosen inter-camera frame
@@ -39,7 +39,7 @@ PathLike = Union[str, Path]
 class Camera:
     """A calibrated pinhole camera with lens distortion.
 
-    All translations and world coordinates are in **metres**.
+    All translations and world coordinates are in **meters**.
 
     Attributes
     ----------
@@ -58,7 +58,7 @@ class Camera:
     name: str = "camera"
 
     def __post_init__(self) -> None:
-        # Frozen dataclass: bypass the setattr guard for normalisation.
+        # Frozen dataclass: bypass the setattr guard for normalization.
         object.__setattr__(self, "K", np.asarray(self.K, dtype=float).reshape(3, 3))
         object.__setattr__(self, "dist", np.asarray(self.dist, dtype=float).ravel())
         object.__setattr__(self, "R", np.asarray(self.R, dtype=float).reshape(3, 3))
@@ -79,7 +79,7 @@ class Camera:
 
     @property
     def center(self) -> np.ndarray:
-        """Camera centre in world coordinates, shape ``(3,)``."""
+        """Camera center in world coordinates, shape ``(3,)``."""
         return (-self.R.T @ self.t).ravel()
 
     @property
@@ -153,7 +153,7 @@ class CameraPair:
 
     @property
     def baseline_m(self) -> float:
-        """Distance between the two camera centres, in metres."""
+        """Distance between the two camera centers, in meters."""
         return float(np.linalg.norm(self.cam0.center - self.cam1.center))
 
 

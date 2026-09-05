@@ -10,12 +10,12 @@ video rather than re-scanning it once each.
 
 *Units.* The original wrote translations in whatever unit
 ``checkerboard_box_size_scale`` used (centimetres) and left downstream code to
-guess. Object points are built in metres here and
+guess. Object points are built in meters here and
 :func:`pose3d.camera.save_extrinsics` writes centimetres for backward
 compatibility, with the conversion in exactly one place.
 
 *Selection.* Frame selection kept an O(k*n) farthest-point loop over Python
-dicts; the same diversity criterion is now a vectorised farthest-point sweep.
+dicts; the same diversity criterion is now a vectorized farthest-point sweep.
 
 *Verifiability.* All of it is importable, so ``tests/`` can render a board
 through a known camera and check that the recovered parameters match -- see
@@ -152,7 +152,7 @@ def farthest_point_selection(
     Calibration accuracy is limited by view *diversity*, not view count: a
     hundred near-identical frames constrain the distortion model no better than
     one. This is the standard farthest-point sweep, seeded with the sharpest
-    detection and vectorised over candidates.
+    detection and vectorized over candidates.
     """
     if len(detections) <= k:
         return list(detections)
@@ -280,7 +280,7 @@ def calibrate_intrinsics(
 @dataclass
 class ExtrinsicResult:
     R: np.ndarray
-    t: np.ndarray                  # metres
+    t: np.ndarray                  # meters
     rms_px: float
     n_pairs: int
     frame_offset: int
@@ -304,7 +304,7 @@ class ExtrinsicResult:
 #    time and made the extrinsics dramatically worse.
 #  * Comparing the PnP board pose between views. The flipped ordering yields the
 #    board rotated 180 degrees about its own normal, which leaves the board in
-#    exactly the same place -- same centre, same distance. There is nothing to
+#    exactly the same place -- same center, same distance. There is nothing to
 #    compare.
 #
 # The ambiguity is genuinely unresolvable from a plain checkerboard alone; a
@@ -449,7 +449,7 @@ def sampson_errors(
     R: np.ndarray,
     T: np.ndarray,
 ) -> np.ndarray:
-    """Per-pair Sampson (first-order epipolar) error, in normalised units."""
+    """Per-pair Sampson (first-order epipolar) error, in normalized units."""
     import cv2
 
     t = np.asarray(T, float).reshape(3)

@@ -154,14 +154,14 @@ def valid_fraction(points3d: np.ndarray) -> float:
 
 
 def mpjpe_mm(pred: np.ndarray, gt: np.ndarray) -> float:
-    """Mean per-joint position error in millimetres, no alignment."""
+    """Mean per-joint position error in millimeters, no alignment."""
     err = np.linalg.norm(pred - gt, axis=-1)
     err = err[np.isfinite(err)]
     return float(np.mean(err) * 1000.0) if err.size else float("nan")
 
 
 def pa_mpjpe_mm(pred: np.ndarray, gt: np.ndarray, *, per_frame: bool = True) -> float:
-    """MPJPE after per-frame similarity (Procrustes) alignment, in millimetres.
+    """MPJPE after per-frame similarity (Procrustes) alignment, in millimeters.
 
     Aligning per frame is the standard protocol: it removes the global rotation,
     translation and scale ambiguity that any two-view reconstruction has, and so
@@ -190,7 +190,7 @@ def pck3d(pred: np.ndarray, gt: np.ndarray, threshold_mm: float = 150.0) -> floa
 
 
 def mpjve_mm(pred: np.ndarray, gt: np.ndarray) -> float:
-    """Mean per-joint velocity error, in millimetres per frame."""
+    """Mean per-joint velocity error, in millimeters per frame."""
     if pred.shape[0] < 2:
         return float("nan")
     err = np.linalg.norm(np.diff(pred, axis=0) - np.diff(gt, axis=0), axis=-1)
@@ -294,9 +294,9 @@ def dtw_distance(
 def sequence_distance_mm(
     seq_a: np.ndarray, seq_b: np.ndarray, *, radius: int = 20
 ) -> float:
-    """Mean per-frame DTW distance between two pose sequences, in millimetres.
+    """Mean per-frame DTW distance between two pose sequences, in millimeters.
 
-    Each frame is centred on its own centroid first, so the metric measures
+    Each frame is centered on its own centroid first, so the metric measures
     posture similarity rather than where in the room the subject stood.
     """
     def prepare(seq: np.ndarray) -> np.ndarray:
@@ -314,7 +314,7 @@ def sequence_distance_mm(
     if not np.isfinite(total) or length == 0:
         return float("nan")
     n_joints = seq_a.shape[1]
-    # Distance is an L2 norm over all joints; normalise to per-joint millimetres.
+    # Distance is an L2 norm over all joints; normalize to per-joint millimeters.
     return float(total / length / np.sqrt(n_joints) * 1000.0)
 
 

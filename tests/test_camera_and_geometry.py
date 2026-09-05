@@ -159,7 +159,7 @@ def test_triangulation_is_accurate_under_pixel_noise():
     uv1 = pair.cam1.project(points) + rng.normal(0, 1.0, (200, 2))
     recovered = triangulate_points(pair.cam0.P, pair.cam1.P, uv0, uv1)
     error = np.linalg.norm(recovered - points, axis=1)
-    # 1 px at 3 m through a 1.5 m baseline is a few millimetres.
+    # 1 px at 3 m through a 1.5 m baseline is a few millimeters.
     assert np.median(error) < 0.01, f"median error {np.median(error) * 1000:.1f} mm"
 
 

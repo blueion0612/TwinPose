@@ -1,7 +1,7 @@
 """Cross-trial calibration validation.
 
 Calibration is fitted on one trial. This checks it against the *other* trials of
-the same task, which is the only way to tell a calibration that generalises from
+the same task, which is the only way to tell a calibration that generalizes from
 one that has memorised its own frames.
 
     python calibration/validate_calibration.py --task_number 30 --exclude_trial 1
@@ -96,7 +96,7 @@ def validate_trial(
     sampson = sampson_errors(pts0, pts1, cameras.cam0.K, cameras.cam0.dist,
                              cameras.cam1.K, cameras.cam1.dist,
                              cameras.cam1.R, cameras.cam1.t)
-    # Sampson error is in normalised units; scale by focal length for pixels.
+    # Sampson error is in normalized units; scale by focal length for pixels.
     focal = float(cameras.cam0.K[0, 0])
 
     return {

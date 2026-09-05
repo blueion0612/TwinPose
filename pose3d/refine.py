@@ -6,7 +6,7 @@ The previous pipeline ran six separate correction stages over the triangulated
 points:
 
 1. a global bundle adjustment whose result was never written back,
-2. bone-length normalisation that lerped each child joint 20% toward its target,
+2. bone-length normalization that lerped each child joint 20% toward its target,
 3. a joint-angle nudge that moved hyperextended middle joints 10% toward the
    chord,
 4. a torso-linearity nudge (20%) plus a MidHip re-projection (50%),
@@ -376,7 +376,7 @@ class _WindowProblem:
         return float(np.sqrt(np.mean(allv ** 2))) if allv.size else float("nan")
 
     def scatter(self, x: np.ndarray, out: np.ndarray) -> None:
-        """Write optimised parameters back into a ``(W, J, 3)`` array."""
+        """Write optimized parameters back into a ``(W, J, 3)`` array."""
         out[self.active] = x.reshape(-1, 3)
 
 
@@ -426,7 +426,7 @@ def refine_sequence(
         ``(2, F, J)`` per-observation weights (typically detector confidence);
         zero or NaN disables that observation.
     bone_lengths
-        Target length in metres per bone name.
+        Target length in meters per bone name.
 
     Returns
     -------
@@ -497,7 +497,7 @@ def refine_sequence(
             problem.scatter(result.x, window)
 
             # Cross-fade: ramp up over the leading overlap, down over the
-            # trailing one, so neighbouring solutions blend instead of stepping.
+            # trailing one, so neighboring solutions blend instead of stepping.
             ramp = np.ones(b - a)
             lead = min(cfg.window_overlap, b - a)
             if a > 0 and lead > 1:

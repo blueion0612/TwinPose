@@ -1,24 +1,30 @@
+<div align="center">
+
 # Markerless 3D Human Pose from Two Smartphones
 
 Yuhyeon Lee · 2025-2026
 
-[![tests](https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones/actions/workflows/tests.yml/badge.svg)](https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones/actions/workflows/tests.yml)
+[![tests](https://img.shields.io/github/actions/workflow/status/blueion0612/Markerless_3D_Pose_TwoSmartphones/tests.yml?branch=main&label=tests)](https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones/actions/workflows/tests.yml)
 [![License](https://img.shields.io/github/license/blueion0612/Markerless_3D_Pose_TwoSmartphones)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.12-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-research%20code-orange)](#limitations)
 
-[**Results**](#results) · [**Method**](#method) · [**Recording guide**](docs/recording.md) · [**Change history**](docs/history.md)
+[**Recording guide**](docs/recording.md) · [**Change history**](docs/history.md) · [**Benchmark output**](validation/benchmark_results.json)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/hero_stages-dark.png">
   <img alt="Three bar charts: reconstruction error, coverage and bone length spread across the triangulation, bootstrap and refinement stages" src="docs/figures/hero_stages.png">
 </picture>
 
-*Read straight from `validation/benchmark_results.json`, so the figure cannot drift
-from the reported numbers. Regenerate with `python docs/figures/make_hero.py`.*
+</div>
+
+*Three stages against synthetic ground truth, five noise seeds. Read straight from
+`validation/benchmark_results.json`, so the figure cannot drift from the table
+below, which `tests/test_readme_numbers.py` checks against the same file.
+Regenerate with `python docs/figures/make_hero.py`.*
 
 **Markerless 3D Pose** reconstructs 3D human motion from two ordinary phone cameras.
-No synchronisation hardware and no motion-capture suit: a green flashlight provides
+No synchronization hardware and no motion-capture suit: a green flashlight provides
 the timing signal, a printed checkerboard provides the geometry, and one person can
 record it alone.
 
@@ -26,7 +32,7 @@ Four things came out of the v2.0 rebuild. Six sequential heuristic correction pa
 were replaced by a single windowed spatio-temporal bundle adjustment, reaching
 23.1 mm MPJPE and 19.7 mm PA-MPJPE against known ground truth. A synthetic
 validation framework makes accuracy measurable with no footage at all. A calibration
-path was corrected for an OpenCV 5.x behaviour that silently discards distortion
+path was corrected for an OpenCV 5.x behavior that silently discards distortion
 coefficients, taking baseline error from 12.1% to 0.14%. And a measured error budget
 shows that calibration scale, not reconstruction, dominates absolute accuracy.
 
@@ -58,12 +64,12 @@ occlusion bursts, 0.4% gross mis-detections.
 510 frames, 5 independent noise seeds, against the real task30 camera pair
 (1.88 m baseline). `validation/benchmark_results.json` has the full output.
 
-| Stage | MPJPE | PA-MPJPE | PCK@50mm | PCK@150mm | bone CV | jerk RMS | coverage |
+| Stage | MPJPE (mm) | PA-MPJPE (mm) | PCK@50 mm (%) | PCK@150 mm (%) | Bone CV (%) | Jerk RMS | Coverage (%) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1. Triangulation | 28.15 mm | 24.36 mm | 87.3% | 99.4% | 11.69% | 2599 | 86.5% |
-| 2. + single-view bootstrap | 35.23 mm | 33.71 mm | 83.2% | 97.7% | 15.46% | 3412 | 98.2% |
-| **3. + bundle adjustment** | **23.12 mm** | **19.73 mm** | **91.7%** | **98.9%** | **2.91%** | **87** | **99.5%** |
-| *noise-free upper bound* | *11.92 mm* | *5.50 mm* | *97.2%* | *100%* | *0.51%* | *13* | *100%* |
+| 1. Triangulation | 28.15 | 24.36 | 87.3 | 99.4 | 11.69 | 2599 | 86.5 |
+| 2. + single-view bootstrap | 35.23 | 33.71 | 83.2 | 97.7 | 15.46 | 3412 | 98.2 |
+| **3. + bundle adjustment** | **23.12** | **19.73** | **91.7** | **98.8** | **2.91** | **87** | **99.5** |
+| *noise-free upper bound* | *11.92* | *5.50* | *97.2* | *100.0* | *0.51* | *13* | *100.0* |
 
 Ground-truth jerk RMS is 98.8, so the reconstruction is now marginally smoother
 than the motion itself, which is the right side of the line. Bootstrapping *costs*
@@ -156,9 +162,9 @@ patterns rather than absolute distances, a scale error costs nothing. If the
 question is "how far did the hand travel", it costs everything.
 
 **The last rows are the term this benchmark cannot otherwise measure.** The
-synthetic detector projects the *true* joint centres. A real 2D detector does
+synthetic detector projects the *true* joint centers. A real 2D detector does
 not: BODY_25B's "hip" is a learned annotation convention, not the anatomical hip
-joint centre, and the discrepancy is systematic rather than noise. For markerless
+joint center, and the discrepancy is systematic rather than noise. For markerless
 systems this is usually the largest single term when comparing against
 marker-based motion capture, and no amount of reconstruction improvement removes
 it. The rows show what it would cost if it were 10-30 mm.
@@ -195,7 +201,7 @@ reprojection RMS:
   distortion for `stereoCalibrate` to handle put the baseline 12.1% out and the
   rotation 5.3° out, at a perfectly respectable 2.5 px RMS.
 - **Board coverage decides the principal point.** Sampling board poses to tile
-  the frame rather than drift near its centre took principal-point error from
+  the frame rather than drift near its center took principal-point error from
   27–65 px down to 2–6 px, with the reported RMS unchanged at 0.39 px throughout.
 
 Cross-trial validation of a real calibration (an honest consistency check, not an
@@ -222,7 +228,7 @@ memory-bandwidth-bound decoding with CPU-bound detection, so throughput peaks
 near half the logical cores and falls off above it (24.1 fps at 8 workers, 20.1
 at 22). `pose3d.video.default_workers()` encodes that.
 
-The 3D stage is no longer worth optimising: the old offset search evaluated 121
+The 3D stage is no longer worth optimizing: the old offset search evaluated 121
 candidates, triangulating every frame for each, and the reconstruction ran one
 `scipy.optimize.least_squares` call *per 3D point*, roughly 50,000 solver
 invocations for a 30-second clip. It is now two coarse-to-fine passes and one
@@ -231,8 +237,11 @@ sparse windowed solve.
 ## Quick start
 
 ```bash
+git clone https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones
+cd Markerless_3D_Pose_TwoSmartphones
 conda env create -f environment.yml
 conda activate pose3d
+pip install -e .
 
 # What will 2D inference actually run on? (see the GPU note below)
 python main.py check
@@ -252,14 +261,14 @@ python main.py plot --task 30 --trial 1
 
 
 ```
-stereo0/1.mp4  ─┬─► [1] synchronise ─► synchronized/*.mp4 ─► [2] calibrate ─► camera_parameters/
+stereo0/1.mp4  ─┬─► [1] synchronize ─► synchronized/*.mp4 ─► [2] calibrate ─► camera_parameters/
                 └────────────────────► Estimation/cam*.mp4 ─► [3] 2D ─► 2D/*.json ─┐
 mono0/1.mp4 ────────────────────────────────────────────────────────────────────────┤
                                                                                     ▼
                                                               [4] 3D ─► 3D/*.json + metrics
 ```
 
-### 1. Synchronisation
+### 1. Synchronization
 
 Green-pixel count per frame, at 1/8 resolution (a flash covers thousands of
 pixels and survives the downscale). Onsets are sharp positive jumps, thresholded
@@ -288,7 +297,7 @@ brings it to 0.14%.
 ### 3. 2D detection
 
 Multi-scale heatmap averaging, batched across frames, with sub-pixel peak
-refinement, a parabola fit to each peak's neighbours. Taking `argmax` alone
+refinement, a parabola fit to each peak's neighbors. Taking `argmax` alone
 quantises every keypoint to the heatmap grid, which is upsampled from a stride-8
 network and therefore coarse enough to put a floor of several pixels on the 2D
 error. Hand crops are derived from the wrist/elbow/shoulder chain.
@@ -300,7 +309,7 @@ error. Hand crops are derived from the wrist/elbow/shoulder chain.
    because a stationary joint carries no timing information and the protocol
    opens with a five-second static T-pose. Fractional candidates are debiased for
    the noise that resampling removes.
-2. **Triangulation.** DLT plus a vectorised Gauss-Newton polish.
+2. **Triangulation.** DLT plus a vectorized Gauss-Newton polish.
 3. **Single-view bootstrapping.** A joint one camera can see lies on a ray; the
    missing degree of freedom comes from the bone to its parent. Of the two
    ray-sphere intersections, the one continuing the joint's own trajectory is
@@ -344,11 +353,11 @@ before smoothing so a trace crossing ±180° is not corrupted.
 
 | # | Stage | Command |
 | --- | --- | --- |
-| 1 | Synchronise and split | `synchronize/synchronizevideo.py --stage 1\|2` |
+| 1 | Synchronize and split | `synchronize/synchronizevideo.py --stage 1\|2` |
 | 2 | Calibrate | `calibration/calibration.py` |
 | 3 | 2D detection | `estimation/Openpose.py` |
 | 4 | 3D reconstruction | `estimation/3D_estimation.py` |
-| | Visualise | `estimation/plot.py` |
+| | Visualize | `estimation/plot.py` |
 | | Compare placements | `estimation/compare.py` |
 
 `main.py` sequences them; each is also a standalone script.
@@ -384,7 +393,7 @@ pose3d/                  the library, one implementation of everything
 
 synchronize/ calibration/ estimation/ tools/    CLI entry points, one per stage
 validation/                                     benchmarks and their results
-tests/                                          101 tests
+tests/                                          103 tests, two of them on this README
 project/                                        recordings, calibration, results
 main.py                                         sequences the stages
 ```
@@ -393,16 +402,18 @@ main.py                                         sequences the stages
 
 ```bash
 pip install -e ".[dev]"                       # so the tests can import pose3d
-pytest                                        # 101 tests, about 8 minutes
+python -m pytest -q                           # 103 tests, about 8 minutes
 python main.py benchmark                      # accuracy against known truth
 python main.py calib-check                    # calibration against known cameras
 ```
 
-Without the editable install, a bare `pytest` cannot import `pose3d`; running
-`python -m pytest` from the repository root works instead, because that puts the
-root on the import path.
+Two of the tests read this README and assert the Accuracy table against
+`validation/benchmark_results.json`, so the numbers above cannot drift from the
+benchmark without CI failing. Without the editable install, a bare `pytest`
+cannot import `pose3d`; `python -m pytest` from the repository root works instead,
+because that puts the root on the import path.
 
-Tested on Python 3.10 (the pinned version) and 3.12.
+Tested on Python 3.10, the pinned version, 3.11 and 3.12.
 
 ## Requirements
 
@@ -413,7 +424,7 @@ pip install -e .          # optional: puts `pose3d` on the path for your own cod
 ```
 
 2D detection needs the OpenPose BODY_25B and hand models, which are not in this
-repository for size and licence reasons. See
+repository for size and license reasons. See
 [`estimation/model/README.md`](estimation/model/README.md) for download links and
 where to put them. Everything except the 2D stage runs without them, including the
 full accuracy benchmark.
@@ -439,7 +450,7 @@ involved requires building OpenCV from source with CUDA enabled.
   much more forgiving.** Scale error is invisible to PA-MPJPE. Decide which of
   the two your question needs before trusting a number.
 - **The 2D detector's anatomical convention is not measured here.** The synthetic
-  detector projects true joint centres; a real one does not, and for markerless
+  detector projects true joint centers; a real one does not, and for markerless
   systems that discrepancy is usually the largest error term against marker-based
   reference. Nothing in this repository can quantify it without real
   simultaneously-recorded motion capture.
@@ -449,7 +460,7 @@ involved requires building OpenCV from source with CUDA enabled.
   itself). Measured against known poses the two views disagree in 5–7% of frames;
   the Sampson outlier rejection drops exactly those. A ChArUco board would remove
   the ambiguity outright.
-- **Sub-frame synchronisation needs fast motion.** A whole-frame sync error costs
+- **Sub-frame synchronization needs fast motion.** A whole-frame sync error costs
   about 3 mm of MPJPE; sub-frame precision is worth about 0.5 mm, and is only
   observable when something is moving. The search reports a confidence margin;
   a flat margin means the clip could not tell.
@@ -464,20 +475,18 @@ involved requires building OpenCV from source with CUDA enabled.
 
 ```bibtex
 @misc{lee2026markerless3d,
-  author = {Yuhyeon Lee},
-  title  = {Markerless 3D Human Pose from Two Unsynchronised Smartphones},
-  year   = {2026},
-  note   = {Unpublished. https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones}
+  author  = {Yuhyeon Lee},
+  title   = {Markerless 3D Human Pose from Two Unsynchronized Smartphones},
+  year    = {2026},
+  version = {2.0.0},
+  url     = {https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones},
+  note    = {Unpublished}
 }
 ```
 
 ## License
 
 MIT. See [`LICENSE`](LICENSE). The OpenPose model weights are **not** included
-and carry CMU's own non-commercial research licence; see
+and carry CMU's own non-commercial research license; see
 [`estimation/model/README.md`](estimation/model/README.md).
-
----
-
-*Yuhyeon Lee*
 

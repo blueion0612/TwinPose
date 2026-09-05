@@ -1,7 +1,7 @@
 """Synthetic checkerboard video, for validating and benchmarking calibration.
 
 ``calibration.py`` has never had a way to check its own answer. It reports a
-reprojection RMS, but a low RMS only says the optimiser found a self-consistent
+reprojection RMS, but a low RMS only says the optimizer found a self-consistent
 solution -- it says nothing about whether the recovered focal length or baseline
 are right, and a systematically wrong calibration can fit its own data perfectly.
 
@@ -43,7 +43,7 @@ class BoardSpec:
 
     @property
     def centre_offset(self) -> np.ndarray:
-        """Board centre in board coordinates, so poses can be centre-relative.
+        """Board center in board coordinates, so poses can be center-relative.
 
         ``object_points`` puts the origin on the first inner corner, which is
         the convention OpenCV uses. Placing a pose by that corner would swing
@@ -59,14 +59,14 @@ class BoardSpec:
 
     @property
     def drawn_size_m(self) -> Tuple[float, float]:
-        """Physical width and height of the printed pattern, in metres."""
+        """Physical width and height of the printed pattern, in meters."""
         return (
             (self.cols + 1) * self.square_size_m,
             (self.rows + 1) * self.square_size_m,
         )
 
     def object_points(self) -> np.ndarray:
-        """Inner-corner positions in board coordinates, ``(rows*cols, 3)`` metres.
+        """Inner-corner positions in board coordinates, ``(rows*cols, 3)`` meters.
 
         Ordering matches ``findChessboardCorners``: x varies fastest.
         """
@@ -75,7 +75,7 @@ class BoardSpec:
         return obj * self.square_size_m
 
     def square_corners(self) -> np.ndarray:
-        """Outer corners of every square, ``(rows+1, cols+1, 3)`` metres.
+        """Outer corners of every square, ``(rows+1, cols+1, 3)`` meters.
 
         The drawn board is one square larger than the inner-corner grid in each
         direction, which is what makes the outermost inner corners detectable.
@@ -102,7 +102,7 @@ class BoardPose:
     def centred_at(
         cls, R: np.ndarray, centre_world: np.ndarray, board: "BoardSpec"
     ) -> "BoardPose":
-        """Pose that puts the board's *centre* at ``centre_world``."""
+        """Pose that puts the board's *center* at ``centre_world``."""
         return cls(R=R, t=np.asarray(centre_world, float) - R @ board.centre_offset)
 
 
@@ -283,7 +283,7 @@ def mono_board_poses(
 
     Intrinsics -- and the principal point especially -- are only well
     conditioned when the board visits the *corners* of the frame at a range of
-    tilts and distances. A board that stays near the image centre leaves the
+    tilts and distances. A board that stays near the image center leaves the
     principal point almost unconstrained, which is exactly the failure the
     reprojection RMS cannot see. Poses are therefore sampled to tile the frame
     rather than to follow a smooth path.
@@ -426,7 +426,7 @@ def render_stereo_videos(
     fps: float = 30.0,
     seed: int = 0,
 ) -> Tuple[int, int]:
-    """Render a synchronised stereo pair for extrinsic calibration."""
+    """Render a synchronized stereo pair for extrinsic calibration."""
     from .video import write_video
 
     poses = stereo_board_poses(cameras, board, size, n_frames, seed=seed)

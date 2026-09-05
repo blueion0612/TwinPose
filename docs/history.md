@@ -16,7 +16,7 @@ stage had stopped working in ways nothing in its output revealed:
 | Inter-trial metrics overwritten with NaN | Computed, then discarded two loops later |
 | `pred[:, feet, [0, 2]]` | Broadcasts to `(F, 2)`; the following `norm(axis=2)` raised |
 | Sync scored by a term ~100× the signal | Bone-length CV decided the offset; the search returned essentially arbitrary answers |
-| Joint-limit test with the sign reversed | Penalised straight limbs instead of impossible folds; cost 2.3 mm of MPJPE |
+| Joint-limit test with the sign reversed | Penalized straight limbs instead of impossible folds; cost 2.3 mm of MPJPE |
 | `cap.set` before every frame read | Video scanned dozens of times over |
 | `DNN_BACKEND_CUDA` on a CUDA-less build | Silent CPU fallback with no indication |
 | Distortion passed to `stereoCalibrate` | Ignored by OpenCV 5.0; baseline 12% wrong |

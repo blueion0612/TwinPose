@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,7 +24,8 @@ jobs:
         run: |
           pip install -e ".[dev]"
           pip install --force-reinstall opencv-python-headless    # no display on a runner
-      - run: pytest -q
+      - name: Unit tests, and the README table against the benchmark file
+        run: python -m pytest -q
       - name: The committed benchmark is readable and complete
         run: |
           python - <<'PY'

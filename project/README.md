@@ -35,9 +35,9 @@ project/
 
 Translations in `camera*_extrinsics.json` are in **centimetres**, because
 `checkerboard_box_size_scale` in `calibration/calibration_settings.yaml` is given
-in centimetres. `pose3d.camera.load_camera_pair` converts to metres on load, and
+in centimetres. `pose3d.camera.load_camera_pair` converts to meters on load, and
 that is the only place the conversion happens — every 3D coordinate in the
-pipeline is in metres.
+pipeline is in meters.
 
 ## `best_offset`
 
@@ -52,7 +52,7 @@ Per task, once:
 - `mono0.mp4` / `mono1.mp4` — about a minute each, moving the checkerboard slowly
   through the **whole frame**, including the corners, at a range of distances and
   tilts. Corner coverage is what determines the principal point; a board that
-  stays near the centre leaves it almost unconstrained, and the reprojection RMS
+  stays near the center leaves it almost unconstrained, and the reprojection RMS
   will not tell you.
 
 Per trial:

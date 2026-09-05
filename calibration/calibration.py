@@ -1,6 +1,6 @@
 """Stereo camera calibration CLI.
 
-Intrinsics come from each camera's mono clip, extrinsics from the synchronised
+Intrinsics come from each camera's mono clip, extrinsics from the synchronized
 stereo pair. The work happens in :mod:`pose3d.calibrate`; this file is argument
 handling and reporting.
 
@@ -48,7 +48,7 @@ def load_settings(path: Path) -> dict:
 
 
 def board_from_settings(settings: dict) -> BoardSpec:
-    """Build a board spec, converting the file's centimetres into metres.
+    """Build a board spec, converting the file's centimetres into meters.
 
     ``checkerboard_box_size_scale`` is documented as centimetres. The old code
     carried that unit straight through into the extrinsics and every downstream

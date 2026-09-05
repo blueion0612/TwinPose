@@ -1,6 +1,6 @@
 """Validate calibration against a camera whose parameters are known exactly.
 
-A reprojection RMS says the optimiser found a self-consistent answer. It does
+A reprojection RMS says the optimizer found a self-consistent answer. It does
 not say the answer is right: a calibration with a 10% focal-length error fits
 its own detections just as well, and every downstream distance inherits that
 error. This renders a checkerboard through a known camera, calibrates from the

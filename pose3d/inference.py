@@ -1,7 +1,7 @@
 """2D pose inference: device selection, batching, and heatmap decoding.
 
 This is the pipeline's dominant cost -- five scales, two cameras, two hands, for
-every frame of a 30-second clip -- so it is where optimisation pays off most.
+every frame of a 30-second clip -- so it is where optimization pays off most.
 
 Three problems with the original ``estimation/Openpose.py``:
 
@@ -175,7 +175,7 @@ def heatmaps_to_keypoints(
     Parameters
     ----------
     refine
-        Fit a parabola to each peak's immediate neighbours to recover sub-pixel
+        Fit a parabola to each peak's immediate neighbors to recover sub-pixel
         position. The original took ``argmax`` alone, quantising every keypoint
         to the heatmap grid -- and since the heatmap is upsampled from a
         stride-8 network, that grid is coarse enough to matter: it puts a floor
@@ -231,7 +231,7 @@ def hand_boxes_from_body(
     """Derive square hand crops from the wrist/elbow/shoulder chain.
 
     Returns ``(x, y, size, hand)`` boxes clipped to the image. The box is
-    centred slightly beyond the wrist along the forearm, which is where the
+    centered slightly beyond the wrist along the forearm, which is where the
     hand actually is.
     """
     from .skeleton import BODY25B

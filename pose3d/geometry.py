@@ -1,6 +1,6 @@
 """Multi-view geometry: triangulation, projection and orthonormal frames.
 
-Everything here is vectorised over frames and joints. The old pipeline called
+Everything here is vectorized over frames and joints. The old pipeline called
 ``cv2.triangulatePoints`` once per frame and then ran a separate
 ``scipy.optimize.least_squares`` per *point* (~50k solver invocations for a
 30-second clip); the closed-form optimal correction used here is both faster and
@@ -80,7 +80,7 @@ def _optimal_correction(
 
     Two iterations is enough: DLT minimises an algebraic error that is already
     close to the geometric optimum for a well-conditioned stereo pair, and this
-    removes the residual bias. Vectorised over all points at once.
+    removes the residual bias. Vectorized over all points at once.
     """
     X = X.copy()
     for _ in range(iterations):
@@ -152,7 +152,7 @@ def triangulate_frames(
 
     Returns
     -------
-    ``(F, J, 3)`` world points in metres, NaN where not reconstructible.
+    ``(F, J, 3)`` world points in meters, NaN where not reconstructible.
     """
     kpts0 = np.asarray(kpts0, dtype=float)
     kpts1 = np.asarray(kpts1, dtype=float)

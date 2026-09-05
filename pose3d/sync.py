@@ -1,9 +1,9 @@
-"""Video synchronisation from a green flashlight, and checkerboard onset search.
+"""Video synchronization from a green flashlight, and checkerboard onset search.
 
 Two cameras recording independently start at arbitrary times. Flashing a green
 light in view of both puts a shared, unambiguous event in each stream; matching
 the *intervals* between flashes then aligns the two clips to within a frame
-without any synchronisation hardware.
+without any synchronization hardware.
 
 Speed
 -----
@@ -274,7 +274,7 @@ def synchronise(
     workers: Optional[int] = None,
     progress: Optional[object] = None,
 ) -> SyncResult:
-    """Full flash-based synchronisation of two clips."""
+    """Full flash-based synchronization of two clips."""
     series0, fps0 = green_area_series(video0, scale=scale, workers=workers,
                                       progress=progress, desc="cam0 flash scan")
     series1, fps1 = green_area_series(video1, scale=scale, workers=workers,

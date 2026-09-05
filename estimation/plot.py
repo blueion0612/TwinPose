@@ -1,4 +1,4 @@
-"""Visualise 3D reconstructions.
+"""Visualize 3D reconstructions.
 
     # final result for one trial
     python estimation/plot.py --task_number 30 --trial_number 1

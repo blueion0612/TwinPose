@@ -10,10 +10,10 @@ whenever it asked for ``LShoulder``.  Everything now goes through
 
 Units
 -----
-Bone lengths are in **metres** throughout this package.  Camera translations
+Bone lengths are in **meters** throughout this package.  Camera translations
 coming out of calibration are in the checkerboard's unit (centimetres, because
 ``checkerboard_box_size_scale`` is given in cm); :mod:`pose3d.camera` converts
-them to metres on load, so every 3D coordinate in the pipeline is in metres.
+them to meters on load, so every 3D coordinate in the pipeline is in meters.
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ BODY25B_DROPPED: Tuple[str, ...] = (
 class Bone:
     """A rigid segment between two joints.
 
-    ``default_length`` is a population prior in metres for a 1.72 m adult; it is
+    ``default_length`` is a population prior in meters for a 1.72 m adult; it is
     rescaled to the subject via :func:`scaled_bone_lengths` and then replaced
     outright by the T-pose measurement when one is available.
     """
@@ -73,7 +73,7 @@ class Bone:
 # 0.52 m, which is a torso length, not half a pelvis width.  Those defaults fed
 # both the single-view bootstrapping and the first bundle-adjustment pass, so
 # every bootstrapped hip was placed roughly five times too far from the pelvis
-# centre.  The project's own T-pose measurement (README section 5-5-1) reports
+# center.  The project's own T-pose measurement (README section 5-5-1) reports
 # 0.0955 m, which matches the anatomy: a hip half-width is ~0.08-0.11 m.
 # --------------------------------------------------------------------------- #
 _BODY25B_BONES: Tuple[Bone, ...] = (
@@ -293,11 +293,11 @@ _REFERENCE_HEIGHT_M = 1.72
 
 _DEFAULT_BY_NAME: Dict[str, float] = {b.name: b.default_length for b in _BODY25B_BONES}
 
-#: Hip-joint-centre to ankle-joint-centre as a fraction of standing height.
+#: Hip-joint-center to ankle-joint-center as a fraction of standing height.
 #: Derived from this module's own femur+tibia defaults so the prior and its
-#: inverse stay mutually consistent. Note this is the *joint centre* chain,
+#: inverse stay mutually consistent. Note this is the *joint center* chain,
 #: which sits below the 0.53 trochanter-height figure in the anthropometry
-#: tables because the ankle joint centre is above the floor.
+#: tables because the ankle joint center is above the floor.
 _HIP_HEIGHT_FRACTION = (
     _DEFAULT_BY_NAME["femur_l"] + _DEFAULT_BY_NAME["tibia_l"]
 ) / _REFERENCE_HEIGHT_M
@@ -316,7 +316,7 @@ def scaled_bone_lengths(
     Parameters
     ----------
     subject_height_m
-        Standing height in metres. ``None`` returns the unscaled defaults.
+        Standing height in meters. ``None`` returns the unscaled defaults.
     """
     lengths = skeleton.default_lengths
     if subject_height_m is None:

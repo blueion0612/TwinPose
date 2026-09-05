@@ -1,4 +1,4 @@
-"""Video IO, flash synchronisation, and calibration.
+"""Video IO, flash synchronization, and calibration.
 
 The calibration tests render a checkerboard through a camera whose parameters
 are known and check that calibration recovers them. That is the check a
@@ -118,7 +118,7 @@ def test_default_workers_is_sane():
 
 
 # --------------------------------------------------------------------------- #
-# Flash synchronisation
+# Flash synchronization
 # --------------------------------------------------------------------------- #
 
 
@@ -186,7 +186,7 @@ def truth_cameras():
     """The real task30 calibration, rescaled to the reduced test resolution.
 
     Rendering and evaluation must use the *same* camera model. Distortion
-    coefficients live in normalised coordinates and so are resolution
+    coefficients live in normalized coordinates and so are resolution
     independent; only K scales.
     """
     from pose3d.camera import CameraPair

@@ -1,14 +1,15 @@
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pose3d"
 version = "2.0.0"
-description = "Markerless 3D human pose estimation from two unsynchronised smartphones"
+description = "Markerless 3D human pose estimation from two unsynchronized smartphones"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Yuhyeon Lee" }]
 dependencies = [
     "numpy>=1.23",
@@ -20,6 +21,10 @@ dependencies = [
     "PyYAML>=6.0",
     "joblib>=1.2",
 ]
+
+[project.urls]
+Repository = "https://github.com/blueion0612/Markerless_3D_Pose_TwoSmartphones"
+Portfolio = "https://blueion0612.github.io"
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "seaborn>=0.12"]

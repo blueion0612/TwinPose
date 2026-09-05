@@ -59,7 +59,7 @@ def _log(cfg: ReconstructionConfig, message: str) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Stage 1 -- inter-camera synchronisation
+# Stage 1 -- inter-camera synchronization
 # --------------------------------------------------------------------------- #
 
 
@@ -68,7 +68,7 @@ def shift_series(
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Resample a keypoint track by a fractional number of frames.
 
-    Vectorised over joints; the previous implementation built a pandas Series
+    Vectorized over joints; the previous implementation built a pandas Series
     per joint per axis inside the offset loop.
     """
     n = kpts.shape[0]
@@ -110,7 +110,7 @@ def _debias_residual(residual_px: float, offset: float, noise_floor_px: float) -
     which made genuine half-frame offsets unrecoverable even from noise-free
     input.
 
-    Modelling the residual as ``signal^2 + noise^2 * (1 + r) / 2`` and adding
+    Modeling the residual as ``signal^2 + noise^2 * (1 + r) / 2`` and adding
     back what resampling removed gives::
 
         corrected^2 = observed^2 + noise_floor^2 * (1 - r) / 2
@@ -126,7 +126,7 @@ def _debias_residual(residual_px: float, offset: float, noise_floor_px: float) -
 def motion_mask(kpts: np.ndarray, percentile: float = 80.0) -> np.ndarray:
     """Mark the (frame, joint) samples that are moving fastest in 2D.
 
-    Synchronisation error shows up as a position error proportional to joint
+    Synchronization error shows up as a position error proportional to joint
     speed, so a joint that is not moving carries no information about the
     offset. Scoring on the whole clip therefore dilutes the signal badly here:
     the recording protocol opens with a five-second static T-pose, during which
@@ -434,7 +434,7 @@ def bootstrap_single_view(
                 origin = cam.center
 
                 parent = out[frames, p_idx]
-                # Where the ray meets the sphere of radius `target` centred on
+                # Where the ray meets the sphere of radius `target` centered on
                 # the parent joint. Two roots when it cuts through; the tangent
                 # point when it misses.
                 oc = parent - origin
@@ -627,7 +627,7 @@ def reconstruct(
     ground_truth: Optional[np.ndarray] = None,
     progress: Optional[Callable] = None,
 ) -> ReconstructionResult:
-    """Reconstruct a 3D pose sequence from synchronised 2D detections.
+    """Reconstruct a 3D pose sequence from synchronized 2D detections.
 
     Parameters
     ----------
@@ -655,7 +655,7 @@ def reconstruct(
     n = min(kpts0.shape[0], kpts1.shape[0])
     kpts0, kpts1, conf0, conf1 = kpts0[:n], kpts1[:n], conf0[:n], conf1[:n]
 
-    # -- 1. synchronisation ------------------------------------------------ #
+    # -- 1. synchronization ------------------------------------------------ #
     if cfg.sync_use_calibration_offset:
         offset = float(cameras.frame_offset)
         _log(cfg, f"[1/8] Using calibration frame offset: {offset:+.2f}")

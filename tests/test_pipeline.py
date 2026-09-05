@@ -83,7 +83,7 @@ def test_detector_noise_leaves_a_realistic_mix(observations):
 
 
 # --------------------------------------------------------------------------- #
-# Stage behaviour
+# Stage behavior
 # --------------------------------------------------------------------------- #
 
 
@@ -176,7 +176,7 @@ def test_measured_bone_lengths_reject_implausible_values(cameras):
     prior = scaled_bone_lengths(BODY25B, 1.72)
 
     broken = subject.points3d.copy()
-    broken[:, BODY25B.index("LElbow")] += 5.0        # elbow five metres off
+    broken[:, BODY25B.index("LElbow")] += 5.0        # elbow five meters off
 
     lengths = measure_bone_lengths(broken, BODY25B, list(range(20)), prior, cfg)
     assert lengths["humerus_l"] == pytest.approx(prior["humerus_l"]), \
@@ -208,7 +208,7 @@ def test_bootstrapping_adds_coverage(observations, cameras):
 
 
 # --------------------------------------------------------------------------- #
-# Synchronisation
+# Synchronization
 # --------------------------------------------------------------------------- #
 
 
@@ -222,7 +222,7 @@ def test_motion_mask_selects_moving_samples():
 def test_debias_is_a_no_op_on_integers_and_without_noise():
     assert _debias_residual(2.0, 1.0, 3.0) == pytest.approx(2.0)
     assert _debias_residual(2.0, 0.5, 0.0) == pytest.approx(2.0)
-    # With noise present, a half-frame offset is penalised.
+    # With noise present, a half-frame offset is penalized.
     assert _debias_residual(2.0, 0.5, 3.0) > 2.0
 
 

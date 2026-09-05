@@ -194,7 +194,7 @@ def joint_bias(n_joints: int, magnitude_mm: float, seed: int) -> np.ndarray:
     """A fixed per-joint offset, constant over time.
 
     Models the error this benchmark otherwise cannot see: a detector's notion of
-    "hip" is not the anatomical hip joint centre, and that discrepancy is
+    "hip" is not the anatomical hip joint center, and that discrepancy is
     systematic rather than noise. The synthetic detector projects the true
     joints, so nothing else here represents it.
     """

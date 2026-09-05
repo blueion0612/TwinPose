@@ -253,7 +253,7 @@ def reconstruct_hands(
 
     Returns
     -------
-    ``(F, 42, 3)`` array in metres, NaN where unreconstructible.
+    ``(F, 42, 3)`` array in meters, NaN where unreconstructible.
     """
     out = triangulate_frames(
         kpts0, kpts1, conf0, conf1, cameras, min_confidence=cfg.hand_min_confidence

@@ -1,4 +1,4 @@
-"""Video synchronisation CLI.
+"""Video synchronization CLI.
 
 Aligns the two stereo clips using the green-flash signal, then splits them into
 the calibration segment and the pose-estimation segment.

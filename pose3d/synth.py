@@ -59,7 +59,7 @@ class MotionSegment:
 class SyntheticSequence:
     """Ground-truth motion plus everything needed to reproduce it."""
 
-    points3d: np.ndarray                   # (F, J, 3) world metres
+    points3d: np.ndarray                   # (F, J, 3) world meters
     bone_lengths: Dict[str, float]
     fps: float
     segments: List[Tuple[str, int, int]] = field(default_factory=list)
@@ -133,7 +133,7 @@ def _default_script() -> List[MotionSegment]:
         return d
 
     # Durations matter: four steps spread over nine seconds is a quarter of real
-    # walking cadence, and a synchronisation estimator has almost nothing to work
+    # walking cadence, and a synchronization estimator has almost nothing to work
     # with when nothing moves. These give ~1 step/s, which is a normal cadence,
     # and limb-tip speeds around 1-2 m/s.
     return [
@@ -151,7 +151,7 @@ def suggest_subject_placement(
     """A pelvis position both cameras can see comfortably.
 
     Takes the ray through each camera's principal point and returns the midpoint
-    of the two rays' closest approach, which is the world point best centred in
+    of the two rays' closest approach, which is the world point best centered in
     both views. Derived from the calibration rather than hard-coded, so the
     synthetic subject lands sensibly for any camera geometry.
     """
@@ -226,7 +226,7 @@ def _forward_kinematics(
     torso_dir = up * np.cos(torso_tilt) + fwd * np.sin(torso_tilt)
     P[idx("Neck")] = root + torso_dir * B["neck_to_midhip"]
     P[idx("Head")] = P[idx("Neck")] + torso_dir * B["neck_to_head"]
-    # Direction must be normalised before scaling by the bone length, or the
+    # Direction must be normalized before scaling by the bone length, or the
     # generated skeleton is not rigid and every bone-length metric measures the
     # generator instead of the reconstruction.
     nose_dir = fwd * 0.85 + up * 0.2
@@ -257,7 +257,7 @@ def _forward_kinematics(
         shank_dir = _rotate_about(thigh_dir, right, knee_side)
         ankle = knee_pos + shank_dir * B[f"tibia_{side.lower()}"]
         P[idx(f"{side}Ankle")] = ankle
-        # Normalised before scaling, so the foot segment is exactly rigid.
+        # Normalized before scaling, so the foot segment is exactly rigid.
         toe_dir = fwd * 0.97 - up * 0.24
         toe_dir = toe_dir / np.linalg.norm(toe_dir)
         P[idx(f"{side}BigToe")] = ankle + toe_dir * B[f"ankle_to_bigtoe_{side.lower()}"]
@@ -324,7 +324,7 @@ def make_sequence(
     Parameters
     ----------
     origin
-        Where the pelvis starts, in world metres. Defaults to
+        Where the pelvis starts, in world meters. Defaults to
         :func:`suggest_subject_placement` when ``cameras`` is given, otherwise
         3 m along +Z.
     walk_direction
@@ -333,7 +333,7 @@ def make_sequence(
         straight at a camera would make the projection degenerate.
     time_offset_frames
         Shift the sampling instants by this many frames. Used by
-        :func:`make_desynchronised_pair` to simulate unsynchronised shutters.
+        :func:`make_desynchronised_pair` to simulate unsynchronized shutters.
     """
     segments = list(script) if script is not None else _default_script()
     bones = scaled_bone_lengths(skeleton, subject_height_m)
@@ -395,7 +395,7 @@ def make_desynchronised_pair(
 ) -> Tuple[SyntheticSequence, SyntheticSequence]:
     """Two views of the same motion, sampled ``offset_frames`` apart in time.
 
-    This is what unsynchronised phone shutters actually do: camera 1 samples the
+    This is what unsynchronized phone shutters actually do: camera 1 samples the
     *scene* at a different instant, rather than sampling a linear interpolation
     of camera 0's frames. Simulating it by resampling camera 0's keypoints
     would low-pass the motion and make sub-frame offsets look unrecoverable
@@ -424,7 +424,7 @@ def make_desynchronised_pair(
 class DetectorNoise:
     """Model of what a real 2D detector does to a perfect projection.
 
-    Defaults are calibrated to BODY_25B behaviour at 2-3 m on 1080x1920 phone
+    Defaults are calibrated to BODY_25B behavior at 2-3 m on 1080x1920 phone
     video: a few pixels of jitter, occasional dropouts, and rarer bursts where a
     limb is occluded for a fraction of a second.
     """

@@ -30,7 +30,7 @@ class ReconstructionConfig:
     sync_min_confidence: float = 0.10
     fps: float = 30.0
 
-    # -- inter-camera synchronisation -------------------------------------- #
+    # -- inter-camera synchronization -------------------------------------- #
     #: Widest offset, in frames, the search will consider.
     sync_max_offset: float = 3.0
     #: Integer-grid step for the coarse pass.
@@ -51,7 +51,7 @@ class ReconstructionConfig:
     sync_use_calibration_offset: bool = False
 
     # -- subject model ----------------------------------------------------- #
-    #: Standing height in metres. Anchors the bone prior before any T-pose
+    #: Standing height in meters. Anchors the bone prior before any T-pose
     #: measurement exists; ``None`` uses the 1.72 m population default.
     subject_height_m: Optional[float] = None
     #: Seconds from the start of the clip searched for T-pose frames.
@@ -78,10 +78,10 @@ class ReconstructionConfig:
 
     #: Expected 2D detector noise, in pixels. The data term's sigma.
     sigma_reproj_px: float = 3.0
-    #: Expected bone-length error, in metres. Loose enough to absorb real soft
+    #: Expected bone-length error, in meters. Loose enough to absorb real soft
     #: tissue movement, tight enough to stop limbs stretching along the ray.
     sigma_bone_m: float = 0.012
-    #: Expected frame-to-frame acceleration, in metres. This is the smoothness
+    #: Expected frame-to-frame acceleration, in meters. This is the smoothness
     #: prior; it does the work the Savitzky-Golay pass and the "subtract 25% of
     #: the acceleration" step used to do, without their phase distortion.
     sigma_accel_m: float = 0.010
